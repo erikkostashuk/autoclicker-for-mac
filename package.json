@@ -1,0 +1,32 @@
+{
+  "name": "autoclicker-for-mac",
+  "version": "1.0.0",
+  "description": "A simple autoclicker application for macOS",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "electron-builder --mac"
+  },
+  "keywords": [
+    "autoclicker",
+    "mac",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-rebuild": "^3.2.9",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+  },
+  "build": {
+    "appId": "com.yourname.autoclicker",
+    "productName": "AutoClicker",
+    "mac": {
+      "category": "public.app-category.utilities"
+    }
+  }
+}
