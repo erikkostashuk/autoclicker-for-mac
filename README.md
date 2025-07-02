@@ -1,49 +1,82 @@
 # AutoClicker for Mac
 
-A simple autoclicker application for macOS built with Electron.
+<p align="center">
+  <img src="logo/512-mac.png" alt="AutoClicker for Mac Logo" width="250"/>
+</p>
 
-## Quick Start
+A simple, yet powerful autoclicker application designed specifically for macOS, built with Electron. This tool helps automate repetitive clicking tasks, saving you time and effort.
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+## ✨ Features
 
-2. Run the app:
-   ```bash
-   npm start
-   ```
+*   **Intuitive User Interface:** Clean and modern design for ease of use.
+*   **Adjustable Click Interval:** Set your desired click speed from 100ms to 10,000ms.
+*   **Start/Stop Functionality:** Easily toggle clicking on and off.
+*   **Real-time Click Counter:** Keep track of the number of clicks performed.
+*   **Global Stop Hotkey:** Press `ESC` at any time to immediately stop the autoclicker.
+*   **Native macOS Integration:** Leverages macOS accessibility features for precise and reliable clicking.
 
-## Important: Enable Accessibility Permissions
+## 🚀 Getting Started
 
-For the autoclicker to work, you MUST grant accessibility permissions:
+### Installation
 
-1. Open **System Preferences** → **Security & Privacy** → **Accessibility**
-2. Click the lock icon to make changes
-3. Add and check the Terminal app (or wherever you're running from)
+You can download the latest release of AutoClicker for Mac from the [Releases page](https://github.com/erikkostashuk/autoclicker-for-mac/releases) (link will be updated upon first release).
 
-## For Actual Clicking to Work (REQUIRED)
+### Building from Source
 
-Install `cliclick` - this is the easiest way to get clicking working:
+If you prefer to build the application yourself, follow these steps:
 
-```bash
-brew install cliclick
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/erikkostashuk/autoclicker-for-mac.git
+    cd autoclicker-for-mac
+    ```
 
-Or if you don't have Homebrew:
-1. Download from: https://github.com/BlueM/cliclick
-2. Put the `cliclick` binary in `/usr/local/bin/`
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-After installing cliclick, the app will work perfectly!
+3.  **Run the app in development mode:**
+    ```bash
+    npm start
+    ```
 
-## Features
+4.  **Package the application for distribution:**
+    ```bash
+    npm run dist
+    ```
+    This will create a distributable `.dmg` file in the `dist/` directory.
 
-- Simple, modern UI
-- Adjustable click interval (100ms - 10,000ms)
-- Start/Stop button
-- Click counter
-- ESC key to stop clicking
+### Important: Enable Accessibility Permissions
 
-## How It Works
+For the autoclicker to function correctly, you **MUST** grant accessibility permissions to the application. When you first run the app, macOS will prompt you to grant these permissions. If you need to do it manually:
 
-The app uses macOS accessibility features to perform mouse clicks at your current cursor position. Make sure to position your cursor where you want clicks before starting!
+1.  Open **System Settings** (or **System Preferences** on older macOS versions) → **Privacy & Security** → **Accessibility**.
+2.  Click the lock icon to make changes (you may need to enter your password).
+3.  Find "AutoClicker" in the list and ensure its checkbox is **checked**.
+
+### For Actual Clicking to Work (REQUIRED)
+
+The application uses a compiled C program to perform clicks without moving the cursor. This is handled internally by the Electron app. However, for the initial setup and to ensure all permissions are correctly granted, the app might prompt you for Automation permissions.
+
+### How It Works
+
+AutoClicker for Mac utilizes macOS's native accessibility APIs to simulate mouse clicks at your current cursor position. This ensures high precision and compatibility with the operating system. Simply position your mouse cursor where you want the clicks to occur before starting the autoclicker.
+
+## ☕ Buy Me a Coffee
+
+If you find this application useful and would like to support its development, you can buy me a coffee! Your support is greatly appreciated.
+
+<a href="https://coff.ee/devwitherik" target="_blank">
+  <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
+</a>
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! If you have suggestions for improvements, bug reports, or want to add new features, please feel free to open an issue or submit a pull request.
+
+---

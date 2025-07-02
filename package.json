@@ -24,9 +24,18 @@
   },
   "build": {
     "appId": "com.yourname.autoclicker",
-    "productName": "AutoClicker",
+    "productName": "AutoClicker for Mac",
+    "files": [
+      "**/*",
+      "clicker"
+    ],
     "mac": {
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "icon": "logo/"
+    },
+    "dmg": {
+      "format": "UDZO",
+      "title": "AutoClicker for Mac"
     }
   }
 }
