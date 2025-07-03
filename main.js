@@ -202,73 +202,50 @@ ipcMain.handle('start-clicking', (event, interval) => {
   clickInterval = setInterval(() => {
     console.log(`=== MAIN PROCESS: Attempting click #${clickCount + 1} ===`);
     
-    // Get CURRENT mouse position for THIS click
-    const { exec } = require('child_process');
-    exec('python3 -c "import tkinter as tk; root=tk.Tk(); print(f\\"{root.winfo_pointerx()},{root.winfo_pointery()}\\"); root.destroy()"', (posError, posOutput) => {
-      let currentX = 500, currentY = 400; // fallback
-      
-      if (!posError && posOutput) {
-        const coords = posOutput.trim().split(',');
-        if (coords.length === 2) {
-          currentX = parseInt(coords[0]);
-          currentY = parseInt(coords[1]);
-        }
-      }
-      
-      // Use C program that clicks WITHOUT moving cursor
-      const cCode = `
+    // Use C program that clicks at current cursor position without moving it
+    const cCode = `
 #include <ApplicationServices/ApplicationServices.h>
 #include <stdio.h>
 int main() {
-    // Get current cursor position to restore later
-    CGEventRef dummyEvent = CGEventCreate(NULL);
-    CGPoint originalPos = CGEventGetLocation(dummyEvent);
-    CFRelease(dummyEvent);
+    // Get current cursor position
+    CGEventRef event = CGEventCreate(NULL);
+    CGPoint currentPos = CGEventGetLocation(event);
+    CFRelease(event);
     
-    CGPoint clickPos = CGPointMake(${currentX}, ${currentY});
-    
-    // Create mouse events that DON'T move the cursor
-    CGEventRef mouseDown = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, clickPos, kCGMouseButtonLeft);
-    CGEventRef mouseUp = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, clickPos, kCGMouseButtonLeft);
-    
-    // Set flag to NOT move cursor
-    CGEventSetIntegerValueField(mouseDown, kCGMouseEventDeltaX, 0);
-    CGEventSetIntegerValueField(mouseDown, kCGMouseEventDeltaY, 0);
-    CGEventSetIntegerValueField(mouseUp, kCGMouseEventDeltaX, 0);
-    CGEventSetIntegerValueField(mouseUp, kCGMouseEventDeltaY, 0);
+    // Create mouse events at current position
+    CGEventRef mouseDown = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, currentPos, kCGMouseButtonLeft);
+    CGEventRef mouseUp = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, currentPos, kCGMouseButtonLeft);
     
     // Post click events
     CGEventPost(kCGHIDEventTap, mouseDown);
     usleep(1000);
     CGEventPost(kCGHIDEventTap, mouseUp);
     
-    // Restore original cursor position
-    CGWarpMouseCursorPosition(originalPos);
-    
     CFRelease(mouseDown);
     CFRelease(mouseUp);
     
-    printf("SMOOTH_CLICK");
+    printf("%.0f,%.0f", currentPos.x, currentPos.y);
     return 0;
 }`;
+    
+    const { exec } = require('child_process');
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+    const tempCFile = path.join(os.tmpdir(), `click_${Date.now()}.c`);
+    const tempExe = path.join(os.tmpdir(), `click_${Date.now()}`);
+    
+    fs.writeFileSync(tempCFile, cCode);
+    exec(`gcc -framework ApplicationServices -o "${tempExe}" "${tempCFile}" && "${tempExe}"`, (error, stdout) => {
+      try {
+        fs.unlinkSync(tempCFile);
+        fs.unlinkSync(tempExe);
+      } catch (e) {}
       
-      const fs = require('fs');
-      const os = require('os');
-      const path = require('path');
-      const tempCFile = path.join(os.tmpdir(), `smooth_click_${Date.now()}.c`);
-      const tempExe = path.join(os.tmpdir(), `smooth_click_${Date.now()}`);
-      
-      fs.writeFileSync(tempCFile, cCode);
-      exec(`gcc -framework ApplicationServices -o "${tempExe}" "${tempCFile}" && "${tempExe}"`, (error, stdout) => {
-        try {
-          fs.unlinkSync(tempCFile);
-          fs.unlinkSync(tempExe);
-        } catch (e) {}
-        
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.webContents.send('debug-message', { message: error ? `❌ Click failed` : `✅ SMOOTH CLICK at {${currentX}, ${currentY}}` });
-        }
-      });
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        const coords = stdout ? stdout.trim() : 'unknown';
+        mainWindow.webContents.send('debug-message', { message: error ? `❌ Click failed` : `✅ Click at {${coords}}` });
+      }
     });
     
     clickCount++;
