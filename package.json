@@ -23,7 +23,7 @@
   "dependencies": {
   },
   "build": {
-    "appId": "com.yourname.autoclicker",
+    "appId": "com..autoclicker",
     "productName": "AutoClicker for Mac",
     "files": [
       "**/*",
