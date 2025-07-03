@@ -25,8 +25,8 @@ toggleBtn.addEventListener('click', async () => {
 async function startClicking() {
     const interval = parseInt(intervalInput.value);
     
-    if (interval < 100) {
-        alert('Interval must be at least 100ms');
+    if (interval < 50) {
+        alert('Interval must be at least 50ms');
         return;
     }
 
@@ -71,6 +71,14 @@ window.electronAPI.onDebugMessage((event, data) => {
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isClicking) {
+        stopClicking();
+    }
+});
+
+// Handle force stop from main process (global ESC key)
+window.electronAPI.onForceStop(() => {
+    if (isClicking) {
+        console.log('Force stopping from global ESC key');
         stopClicking();
     }
 });

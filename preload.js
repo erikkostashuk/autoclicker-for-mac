@@ -6,5 +6,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onClickPerformed: (callback) => ipcRenderer.on('click-performed', callback),
     checkPermissions: () => ipcRenderer.invoke('check-permissions'),
     onPermissionStatus: (callback) => ipcRenderer.on('permission-status', callback),
-    onDebugMessage: (callback) => ipcRenderer.on('debug-message', callback)
+    onDebugMessage: (callback) => ipcRenderer.on('debug-message', callback),
+    onForceStop: (callback) => ipcRenderer.on('force-stop', callback)
 });
