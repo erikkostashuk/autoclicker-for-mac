@@ -13,7 +13,7 @@
     "mac",
     "electron"
   ],
-  "author": "",
+  "author": "devwitherik",
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
@@ -23,7 +23,7 @@
   "dependencies": {
   },
   "build": {
-    "appId": "com.yourname.autoclicker",
+    "appId": "com.devwitherik.autoclicker",
     "productName": "AutoClicker for Mac",
     "files": [
       "**/*",
