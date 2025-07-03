@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, systemPreferences } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, systemPreferences, globalShortcut } = require('electron');
 const path = require('path');
 const { clickMouse } = require('./click');
 
@@ -32,6 +32,18 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow();
+  
+  // Register global ESC key shortcut
+  globalShortcut.register('Escape', () => {
+    console.log('ESC pressed globally - stopping autoclicker');
+    if (clickInterval) {
+      clearInterval(clickInterval);
+      clickInterval = null;
+    }
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('force-stop');
+    }
+  });
   
   // Check permissions on macOS
   if (process.platform === 'darwin') {
@@ -144,6 +156,11 @@ app.on('window-all-closed', () => {
   }
 });
 
+app.on('will-quit', () => {
+  // Unregister all shortcuts when app is about to quit
+  globalShortcut.unregisterAll();
+});
+
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
@@ -178,6 +195,10 @@ ipcMain.handle('start-clicking', (event, interval) => {
   }
   
   let clickCount = 0;
+  
+  // Minimum interval enforcement to prevent system overload
+  const actualInterval = Math.max(interval, 50); // Enforce minimum 50ms between clicks
+  
   clickInterval = setInterval(() => {
     console.log(`=== MAIN PROCESS: Attempting click #${clickCount + 1} ===`);
     
@@ -254,7 +275,7 @@ int main() {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('click-performed', { count: clickCount });
     }
-  }, interval);
+  }, actualInterval);
   
   return true;
 });
