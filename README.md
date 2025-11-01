@@ -63,14 +63,6 @@ The application uses a compiled C program to perform clicks without moving the c
 
 AutoClicker for Mac utilizes macOS's native accessibility APIs to simulate mouse clicks at your current cursor position. This ensures high precision and compatibility with the operating system. Simply position your mouse cursor where you want the clicks to occur before starting the autoclicker.
 
-## ☕ Buy Me a Coffee
-
-If you find this application useful and would like to support its development, you can buy me a coffee! Your support is greatly appreciated.
-
-<a href="https://coff.ee/devwitherik" target="_blank">
-  <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
-</a>
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
