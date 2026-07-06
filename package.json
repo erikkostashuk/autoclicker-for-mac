@@ -13,7 +13,7 @@
     "mac",
     "electron"
   ],
-  "author": "",
+  "author": "erikkostashuk",
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
