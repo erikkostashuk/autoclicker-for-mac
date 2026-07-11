@@ -60,19 +60,6 @@ function createMenu() {
       label: 'Help',
       submenu: [
         {
-          label: 'Support',
-          click: async () => {
-            await shell.openExternal('https://coff.ee/');
-          }
-        },
-        {
-          label: 'Report a Bug',
-          click: async () => {
-            await shell.openExternal('https://x.com/');
-          }
-        },
-        { type: 'separator' },
-        {
           label: 'Learn More',
           click: async () => {
             await shell.openExternal('https://electronjs.org');
