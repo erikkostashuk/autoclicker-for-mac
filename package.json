@@ -16,7 +16,7 @@
   "author": "erikkostashuk",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^39.8.5",
+    "electron": "^41.10.6",
     "electron-rebuild": "^3.2.9",
     "electron-builder": "^26.15.3"
   },
