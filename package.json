@@ -1,41 +1,82 @@
 {
   "name": "autoclicker-for-mac",
-  "version": "1.3.0",
-  "description": "A simple autoclicker application for macOS",
-  "main": "main.js",
+  "version": "1.4.0",
+  "description": "A fast, free autoclicker for macOS",
+  "main": "src/main.js",
   "scripts": {
+    "build:native": "sh native/build.sh",
+    "prestart": "npm run build:native",
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dist": "electron-builder --mac"
+    "pretest": "npm run build:native",
+    "test": "node --test \"test/*.test.js\"",
+    "predist": "npm run build:native",
+    "dist": "electron-builder --mac",
+    "postdist": "sh scripts/compress-dmgs.sh"
   },
   "keywords": [
     "autoclicker",
     "mac",
     "electron"
   ],
-  "author": "erikkostashuk",
+  "author": "Erik Kostashuk",
   "license": "MIT",
+  "repository": "github:erikkostashuk/autoclicker-for-mac",
   "devDependencies": {
-    "electron": "^39.8.5",
-    "electron-rebuild": "^3.2.9",
+    "electron": "^44.7.2",
     "electron-builder": "^26.15.3"
-  },
-  "dependencies": {
   },
   "build": {
     "appId": "com.erikkostashuk.autoclicker",
     "productName": "AutoClicker for Mac",
     "files": [
-      "**/*",
-      "clicker"
+      "src/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "native/build/clicker",
+        "to": "clicker"
+      }
+    ],
+    "electronLanguages": [
+      "en"
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "logo/"
+      "icon": "logo/1024-mac.png",
+      "identity": "-",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "AutoClicker-for-Mac-${version}-${arch}.${ext}",
+      "hardenedRuntime": false
     },
     "dmg": {
-      "format": "UDZO",
-      "title": "AutoClicker for Mac"
-    }
+      "title": "AutoClicker for Mac",
+      "background": "assets/dmg-background.png",
+      "contents": [
+        {
+          "x": 140,
+          "y": 120,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 120,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "writeUpdateInfo": false
+    },
+    "publish": null
+  },
+  "allowScripts": {
+    "electron-winstaller": false
   }
 }

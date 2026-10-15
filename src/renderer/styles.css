@@ -1,0 +1,384 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1d1d1f;
+  --secondary: #6e6e73;
+  --separator: rgba(60, 60, 67, 0.14);
+  --control: rgba(118, 118, 128, 0.12);
+  --control-selected: #ffffff;
+  --input: #ffffff;
+  --input-border: rgba(60, 60, 67, 0.24);
+  --accent: #007aff;
+  --danger: #ff3b30;
+  --success: #34c759;
+  --warning: #ff9500;
+  --warning-text: #b25000;
+  --banner: #fff6e8;
+  --banner-border: rgba(255, 149, 0, 0.35);
+  --shadow: 0 0.5px 1.5px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --card: #2c2c2e;
+    --text: #f5f5f7;
+    --secondary: #98989f;
+    --separator: rgba(84, 84, 88, 0.6);
+    --control: rgba(118, 118, 128, 0.24);
+    --control-selected: #636366;
+    --input: #1c1c1e;
+    --input-border: rgba(118, 118, 128, 0.5);
+    --accent: #0a84ff;
+    --danger: #ff453a;
+    --success: #30d158;
+    --warning: #ff9f0a;
+    --warning-text: #ffb340;
+    --banner: rgba(255, 159, 10, 0.12);
+    --banner-border: rgba(255, 159, 10, 0.35);
+    --shadow: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Cards and rows */
+
+.card {
+  margin: 0;
+  background: var(--card);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.row {
+  padding: 9px 12px;
+}
+
+.row + .row {
+  border-top: 1px solid var(--separator);
+}
+
+.row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+}
+
+.row-main.sub {
+  margin-top: 8px;
+  color: var(--secondary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.note {
+  margin: 4px 0 0;
+  color: var(--secondary);
+  font-size: 11px;
+  text-align: right;
+}
+
+.note.error {
+  color: var(--danger);
+}
+
+.note.warning {
+  color: var(--warning-text);
+}
+
+.unit,
+.axis {
+  color: var(--secondary);
+}
+
+/* Inputs */
+
+.number,
+select {
+  padding: 3px 7px;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background: var(--input);
+}
+
+.number {
+  width: 76px;
+  text-align: right;
+  user-select: text;
+}
+
+select {
+  appearance: none;
+  padding-right: 24px;
+}
+
+.select {
+  position: relative;
+}
+
+.select::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 5px;
+  height: 5px;
+  margin-top: -4px;
+  border: solid var(--secondary);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.number.short {
+  width: 64px;
+}
+
+.number::-webkit-inner-spin-button,
+.number::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.number[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.number:focus-visible {
+  outline-offset: 0;
+}
+
+input:disabled,
+select:disabled,
+button:disabled {
+  opacity: 0.45;
+}
+
+/* Segmented control built from radio buttons, so arrow keys work natively. */
+
+.segmented {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--control);
+}
+
+.segmented label {
+  position: relative;
+}
+
+.segmented input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.segmented span {
+  display: block;
+  padding: 2px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.segmented input:checked + span {
+  background: var(--control-selected);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+  font-weight: 500;
+}
+
+.segmented input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.segmented input:disabled + span {
+  opacity: 0.45;
+}
+
+/* Buttons */
+
+.secondary {
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--control);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.secondary:active:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.toggle.stop {
+  background: var(--danger);
+}
+
+.toggle:active:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.toggle:focus-visible {
+  outline-offset: 2px;
+}
+
+kbd {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.22);
+  font: 500 12px -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.hotkey {
+  min-width: 84px;
+  font-size: 13px;
+}
+
+.hotkey.recording {
+  outline: 2px solid var(--accent);
+  color: var(--secondary);
+}
+
+/* Status */
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--secondary);
+  opacity: 0.6;
+}
+
+.dot[data-tone='active'] {
+  background: var(--success);
+  opacity: 1;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.dot[data-tone='warning'] {
+  background: var(--warning);
+  opacity: 1;
+}
+
+.dot[data-tone='error'] {
+  background: var(--danger);
+  opacity: 1;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot[data-tone='active'] {
+    animation: none;
+  }
+}
+
+.count {
+  margin-left: auto;
+  color: var(--secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.status-note {
+  margin: -6px 0 0;
+  padding: 0 4px;
+  color: var(--secondary);
+  font-size: 11px;
+}
+
+/* Permission banner */
+
+.banner {
+  padding: 12px;
+  border: 1px solid var(--banner-border);
+  border-radius: 10px;
+  background: var(--banner);
+}
+
+.banner h2 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.banner p {
+  margin: 0 0 10px;
+}
+
+.banner .fine {
+  margin: 10px 0 0;
+  color: var(--secondary);
+  font-size: 11px;
+}

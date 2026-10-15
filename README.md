@@ -1,74 +1,56 @@
-# AutoClicker for Mac
-
 <p align="center">
-  <img src="logo/512-mac.png" alt="AutoClicker for Mac Logo" width="250"/>
+  <img src="logo/512-mac.png" alt="" width="128"/>
 </p>
 
-A simple, yet powerful autoclicker application designed specifically for macOS, built with Electron. This tool helps automate repetitive clicking tasks, saving you time and effort.
+<h1 align="center">AutoClicker for Mac</h1>
 
-## ✨ Features
+<p align="center">A free, open-source autoclicker for macOS.<br/>Choose how often to click, press ⌥⌘K, and it clicks for you.</p>
 
-*   **Intuitive User Interface:** Clean and modern design for ease of use.
-*   **Adjustable Click Interval:** Set your desired click speed from 100ms to 10,000ms.
-*   **Start/Stop Functionality:** Easily toggle clicking on and off.
-*   **Real-time Click Counter:** Keep track of the number of clicks performed.
-*   **Global Stop Hotkey:** Press `ESC` at any time to immediately stop the autoclicker.
-*   **Native macOS Integration:** Leverages macOS accessibility features for precise and reliable clicking.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png"/>
+    <img src="docs/screenshot-light.png" alt="The AutoClicker window: click interval, mouse button, click type, repeat and position settings, a Start button and the start/stop shortcut" width="440"/>
+  </picture>
+</p>
 
-## 🚀 Getting Started
+## Install
 
-### Installation
+1. Download the latest DMG from [Releases](https://github.com/erikkostashuk/autoclicker-for-mac/releases/latest). Pick **arm64** for Apple Silicon Macs (M1 or newer) or **x64** for Intel Macs. Not sure which you have? Check **Apple menu → About This Mac**. Requires macOS 13 or later.
+2. Open the DMG and drag **AutoClicker for Mac** into **Applications**.
+3. Open the app. The first time, macOS blocks it because it isn't notarized by Apple. Go to **System Settings → Privacy & Security** and click **Open Anyway**.
+4. When asked, turn on **Accessibility** access. macOS requires this before any app can click for you.
 
-You can download the latest release of AutoClicker for Mac from the [Releases page](https://github.com/erikkostashuk/autoclicker-for-mac/releases) (link will be updated upon first release).
+## Features
 
-### Building from Source
+- Click as often as every millisecond or as rarely as once a day, with precise timing
+- Left, right or middle button, single or double clicks
+- Click until you stop, or a set number of times
+- Click where the cursor is, or at a fixed spot you pick on screen
+- Start and stop from any app with ⌥⌘K (you can change it). Esc always stops.
+- Remembers your settings and follows light and dark mode
 
-If you prefer to build the application yourself, follow these steps:
+## Help
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/erikkostashuk/autoclicker-for-mac.git
-    cd autoclicker-for-mac
-    ```
+- **Clicking stopped working after an update.** Open **System Settings → Privacy & Security → Accessibility**, remove AutoClicker for Mac with the **–** button, then open the app and turn access on again.
+- **Clicks lag or keep going for a moment after stopping.** macOS handles about 200 clicks per second at most. Use a longer interval.
+- **The shortcut doesn't work.** Another app may be using it. Click the shortcut in AutoClicker and press a new one.
+- **Something else?** [Open an issue](https://github.com/erikkostashuk/autoclicker-for-mac/issues/new).
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+## Development
 
-3.  **Run the app in development mode:**
-    ```bash
-    npm start
-    ```
+You need [Node.js 24](https://nodejs.org) and the Xcode Command Line Tools (`xcode-select --install`).
 
-4.  **Package the application for distribution:**
-    ```bash
-    npm run dist
-    ```
-    This will create a distributable `.dmg` file in the `dist/` directory.
+```bash
+npm install
+npm start      # run the app
+npm test       # run the tests
+npm run dist   # build the DMGs into dist/
+```
 
-### Important: Enable Accessibility Permissions
+The app is built with Electron (`src/`) plus a small native click engine (`native/clicker.m`). When you run it with `npm start`, macOS asks for Accessibility access for your terminal app instead of AutoClicker.
 
-For the autoclicker to function correctly, you **MUST** grant accessibility permissions to the application. When you first run the app, macOS will prompt you to grant these permissions. If you need to do it manually:
+Every push to `main` publishes a new release automatically, with the next patch version (1.4.1, 1.4.2, …). To start a new minor or major version, change `version` in `package.json`. Changes to docs alone don't publish a release.
 
-1.  Open **System Settings** (or **System Preferences** on older macOS versions) → **Privacy & Security** → **Accessibility**.
-2.  Click the lock icon to make changes (you may need to enter your password).
-3.  Find "AutoClicker" in the list and ensure its checkbox is **checked**.
+## License
 
-### For Actual Clicking to Work (REQUIRED)
-
-The application uses a compiled C program to perform clicks without moving the cursor. This is handled internally by the Electron app. However, for the initial setup and to ensure all permissions are correctly granted, the app might prompt you for Automation permissions.
-
-### How It Works
-
-AutoClicker for Mac utilizes macOS's native accessibility APIs to simulate mouse clicks at your current cursor position. This ensures high precision and compatibility with the operating system. Simply position your mouse cursor where you want the clicks to occur before starting the autoclicker.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! If you have suggestions for improvements, bug reports, or want to add new features, please feel free to open an issue or submit a pull request.
-
----
+[MIT](LICENSE)

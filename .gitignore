@@ -40,18 +40,10 @@ pids/
 .tmp/
 .temp/
 
-# Compiled binaries
-clicker
-clicker.exe
+# Compiled binaries (the click engine builds into native/build/)
 *.o
 *.so
 *.dylib
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
 
 # Electron
 *.asar

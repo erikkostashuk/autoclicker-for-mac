@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'"
+    />
+    <title>AutoClicker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section class="banner" id="permissionBanner" hidden>
+        <h2>Turn on Accessibility access</h2>
+        <p>
+          macOS only lets AutoClicker click after you switch it on in System Settings → Privacy &amp; Security →
+          Accessibility.
+        </p>
+        <button type="button" class="secondary" id="openSettingsBtn">Open System Settings</button>
+        <p class="fine">
+          Already switched on? After an update macOS can keep the old approval. Remove AutoClicker with the – button,
+          then click Open System Settings again to add it back.
+        </p>
+      </section>
+
+      <form id="settingsForm" class="card" novalidate>
+        <div class="row">
+          <div class="row-main">
+            <label for="intervalValue">Click every</label>
+            <div class="controls">
+              <input id="intervalValue" class="number" type="number" step="any" min="0" inputmode="decimal" />
+              <span class="select">
+                <select id="intervalUnit" aria-label="Interval unit">
+                  <option value="ms">milliseconds</option>
+                  <option value="s">seconds</option>
+                  <option value="min">minutes</option>
+                </select>
+              </span>
+            </div>
+          </div>
+          <p class="note" id="intervalNote"></p>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <span id="buttonLabel">Mouse button</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="buttonLabel">
+              <label><input type="radio" name="button" value="left" /><span>Left</span></label>
+              <label><input type="radio" name="button" value="right" /><span>Right</span></label>
+              <label><input type="radio" name="button" value="middle" /><span>Middle</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <span id="clickTypeLabel">Click type</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="clickTypeLabel">
+              <label><input type="radio" name="clickType" value="single" /><span>Single</span></label>
+              <label><input type="radio" name="clickType" value="double" /><span>Double</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <span id="repeatLabel">Repeat</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="repeatLabel">
+              <label><input type="radio" name="repeatMode" value="forever" /><span>Until stopped</span></label>
+              <label><input type="radio" name="repeatMode" value="count" /><span>Set number</span></label>
+            </div>
+          </div>
+          <div class="row-main sub" id="repeatCountRow">
+            <label for="repeatCount">Stop after</label>
+            <div class="controls">
+              <input id="repeatCount" class="number" type="number" min="1" step="1" inputmode="numeric" />
+              <span class="unit">clicks</span>
+            </div>
+          </div>
+          <p class="note error" id="repeatNote" hidden></p>
+        </div>
+
+        <div class="row">
+          <div class="row-main">
+            <span id="positionLabel">Click at</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="positionLabel">
+              <label><input type="radio" name="positionMode" value="cursor" /><span>Cursor</span></label>
+              <label><input type="radio" name="positionMode" value="fixed" /><span>Fixed spot</span></label>
+            </div>
+          </div>
+          <div class="row-main sub" id="fixedRow">
+            <div class="controls">
+              <label for="x" class="axis">X</label>
+              <input id="x" class="number short" type="number" step="1" inputmode="numeric" />
+              <label for="y" class="axis">Y</label>
+              <input id="y" class="number short" type="number" step="1" inputmode="numeric" />
+            </div>
+            <button type="button" class="secondary" id="pickBtn">Pick…</button>
+          </div>
+          <p class="note" id="positionNote" hidden></p>
+        </div>
+      </form>
+
+      <button type="button" class="toggle" id="toggleBtn">
+        <span id="toggleLabel">Start</span>
+        <kbd id="toggleShortcut" hidden></kbd>
+      </button>
+
+      <div class="status">
+        <span class="dot" id="statusDot" aria-hidden="true"></span>
+        <span id="statusText" role="status"></span>
+        <span class="count" id="clickCount"></span>
+      </div>
+      <p class="status-note" id="statusNote" hidden></p>
+
+      <section class="card">
+        <div class="row">
+          <div class="row-main">
+            <span id="hotkeyLabel">Start/stop shortcut</span>
+            <button
+              type="button"
+              class="secondary hotkey"
+              id="hotkeyBtn"
+              aria-labelledby="hotkeyLabel hotkeyBtn"
+              aria-describedby="hotkeyNote"
+            ></button>
+          </div>
+          <p class="note" id="hotkeyNote"></p>
+        </div>
+      </section>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
+</html>
