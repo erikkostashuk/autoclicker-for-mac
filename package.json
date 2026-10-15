@@ -18,7 +18,7 @@
     "mac",
     "electron"
   ],
-  "author": "erikkostashuk",
+  "author": "Erik Kostashuk",
   "license": "MIT",
   "repository": "github:erikkostashuk/autoclicker-for-mac",
   "devDependencies": {
