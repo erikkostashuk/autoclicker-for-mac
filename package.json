@@ -58,6 +58,20 @@
     },
     "dmg": {
       "title": "AutoClicker for Mac",
+      "background": "assets/dmg-background.png",
+      "contents": [
+        {
+          "x": 140,
+          "y": 120,
+          "type": "file"
+        },
+        {
+          "x": 400,
+          "y": 120,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
       "writeUpdateInfo": false
     },
     "publish": null
