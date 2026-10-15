@@ -25,7 +25,9 @@
 #import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/Foundation.h>
 #include <errno.h>
+#include <mach/mach.h>
 #include <mach/mach_time.h>
+#include <mach/thread_policy.h>
 #include <os/lock.h>
 #include <pthread.h>
 #include <signal.h>
@@ -186,8 +188,23 @@ static void finish_run(Run *run, uint64_t clicks, const char *reason) {
     free(run);
 }
 
+// Real-time scheduling keeps each click within microseconds of its target
+// time, even when every core is busy; normal threads drift by milliseconds.
+// The thread sleeps between clicks, so it uses almost none of its budget.
+static void use_realtime_scheduling(void) {
+    thread_time_constraint_policy_data_t policy = {
+        .period = 0,
+        .computation = (uint32_t)ticks_from_us(500),
+        .constraint = (uint32_t)ticks_from_us(1000),
+        .preemptible = true,
+    };
+    thread_policy_set(pthread_mach_thread_np(pthread_self()), THREAD_TIME_CONSTRAINT_POLICY,
+                      (thread_policy_t)&policy, THREAD_TIME_CONSTRAINT_POLICY_COUNT);
+}
+
 static void *run_clicks(void *arg) {
     Run *run = arg;
+    use_realtime_scheduling();
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
     // By default macOS ignores the real mouse for 0.25 s after every synthetic
     // event, which makes the pointer stutter while clicking fast.
