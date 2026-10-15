@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
-const { DEFAULTS, SettingsStore, intervalMs, sanitize } = require('../src/settings');
+const { DEFAULTS, SettingsStore, hasFixedPoint, intervalMs, sanitize } = require('../src/settings');
 
 test('returns defaults for missing or non-object input', () => {
   assert.deepEqual(sanitize(undefined), DEFAULTS);
@@ -42,6 +42,12 @@ test('validates repeat count and coordinates', () => {
     (({ x, y }) => ({ x, y }))(sanitize({ x: -120.6, y: 1e9 })),
     { x: -121, y: DEFAULTS.y },
   );
+});
+
+test('has no fixed spot until one is set', () => {
+  assert.equal(hasFixedPoint(DEFAULTS), false);
+  assert.equal(hasFixedPoint(sanitize({ x: 0, y: 0 })), true);
+  assert.equal(hasFixedPoint(sanitize({ x: 10, y: null })), false);
 });
 
 test('store falls back to defaults for a corrupt file and saves updates', () => {

@@ -7,6 +7,9 @@ const MAX_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const MAX_REPEAT_COUNT = 1_000_000_000;
 const MAX_COORDINATE = 100_000;
 const RADIO_GROUPS = ['button', 'clickType', 'repeatMode', 'positionMode'];
+// Measured: above this many presses per second macOS queues clicks, so they
+// lag behind and keep landing briefly after Stop.
+const FAST_PRESSES_PER_SECOND = 200;
 
 const $ = (id) => document.getElementById(id);
 const form = $('settingsForm');
@@ -102,8 +105,8 @@ function fillForm(settings) {
 
 function fillPosition(settings) {
   form.elements.positionMode.value = settings.positionMode;
-  $('x').value = settings.x;
-  $('y').value = settings.y;
+  $('x').value = settings.x ?? '';
+  $('y').value = settings.y ?? '';
 }
 
 function validateInterval() {
@@ -127,7 +130,7 @@ function validatePosition() {
   const x = $('x').valueAsNumber;
   const y = $('y').valueAsNumber;
   const valid = [x, y].every((n) => Number.isInteger(n) && Math.abs(n) <= MAX_COORDINATE);
-  errors.position = radioValue('positionMode') === 'fixed' && !valid ? 'Enter whole-number coordinates' : null;
+  errors.position = radioValue('positionMode') === 'fixed' && !valid ? 'Pick a spot, or type its X and Y' : null;
   return valid ? { x, y } : {};
 }
 
@@ -138,6 +141,8 @@ function validateAll() {
 }
 
 const hasErrors = () => Object.values(errors).some(Boolean);
+// Empty coordinates just need a pick, so they're a hint rather than an error.
+const noSpotYet = () => !$('x').value && !$('y').value;
 
 // Saves whatever is valid; invalid fields stay on screen with an error and keep
 // Start disabled until they're fixed.
@@ -146,7 +151,7 @@ function saveForm() {
   const interval = validateInterval();
   if (!errors.interval) Object.assign(patch, interval);
   Object.assign(patch, validateRepeat(), validatePosition());
-  api.updateSettings(patch);
+  api.updateSettings(patch, !hasErrors());
   render();
 }
 
@@ -160,6 +165,11 @@ function statusFor({ running, picking, trusted, lastRun }) {
   if (running) return { tone: 'active', text: 'Clicking', note: 'Clicks pause while the cursor is over this window.' };
   if (!trusted || lastRun?.reason === 'permission') return { tone: 'error', text: 'Needs Accessibility access' };
   if (lastRun?.reason === 'error') return { tone: 'error', text: 'The click engine stopped unexpectedly' };
+  if (lastRun?.reason === 'invalid' || lastRun?.reason === 'no-position') {
+    const onlyNeedsSpot = !errors.interval && !errors.repeat && (lastRun.reason === 'no-position' || noSpotYet());
+    if (onlyNeedsSpot) return { tone: 'warning', text: 'Pick a spot to click first' };
+    return { tone: 'error', text: 'Fix the setting marked in red to start' };
+  }
   if (lastRun?.reason === 'done') return { tone: 'idle', text: 'Finished' };
   if (lastRun?.reason === 'stopped') return { tone: 'idle', text: 'Stopped' };
   return { tone: 'idle', text: 'Ready' };
@@ -183,12 +193,18 @@ function render() {
   $('fixedRow').hidden = radioValue('positionMode') !== 'fixed';
 
   const intervalMs = $('intervalValue').valueAsNumber * UNIT_MS[$('intervalUnit').value];
-  setNote($('intervalNote'), errors.interval, errors.interval ? '' : describeRate(intervalMs, radioValue('clickType') === 'double'));
+  const double = radioValue('clickType') === 'double';
+  const tooFast = !errors.interval && (1000 / intervalMs) * (double ? 2 : 1) > FAST_PRESSES_PER_SECOND;
+  let rate = errors.interval ? '' : describeRate(intervalMs, double);
+  if (tooFast) rate += ' — faster than macOS can keep up, so clicks may lag';
+  setNote($('intervalNote'), errors.interval, rate);
+  $('intervalNote').classList.toggle('warning', tooFast);
   $('intervalValue').setAttribute('aria-invalid', String(Boolean(errors.interval)));
   setNote($('repeatNote'), errors.repeat);
   $('repeatCount').setAttribute('aria-invalid', String(Boolean(errors.repeat)));
-  setNote($('positionNote'), errors.position);
-  for (const id of ['x', 'y']) $(id).setAttribute('aria-invalid', String(Boolean(errors.position)));
+  const hintOnly = noSpotYet();
+  setNote($('positionNote'), hintOnly ? null : errors.position, hintOnly ? errors.position : '');
+  for (const id of ['x', 'y']) $(id).setAttribute('aria-invalid', String(Boolean(errors.position) && !hintOnly));
 
   $('permissionBanner').hidden = trusted;
 
@@ -203,7 +219,8 @@ function render() {
   const status = statusFor(state);
   $('statusDot').dataset.tone = status.tone;
   $('statusText').textContent = status.text;
-  $('clickCount').textContent = plural(clicks, 'click');
+  $('clickCount').textContent =
+    running && state.limit ? `${formatNumber(clicks)} of ${plural(state.limit, 'click')}` : plural(clicks, 'click');
   setNote($('statusNote'), null, status.note);
 
   const hotkeyBtn = $('hotkeyBtn');
@@ -220,13 +237,16 @@ function render() {
 
 function applyState(next) {
   state = next;
-  // A finished pick changes the coordinates, so copy them into the form.
-  if (wasPicking && !state.picking) {
-    fillPosition(state.settings);
-    validatePosition();
-  }
+  // A finished pick changes the coordinates, so copy them into the form and
+  // save, which also tells the main process the form is valid again.
+  const pickEnded = wasPicking && !state.picking;
   wasPicking = state.picking;
-  render();
+  if (pickEnded) {
+    fillPosition(state.settings);
+    saveForm();
+  } else {
+    render();
+  }
 }
 
 // --- Actions ---------------------------------------------------------------

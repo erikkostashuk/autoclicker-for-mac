@@ -2,7 +2,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('autoclicker', {
   getState: () => ipcRenderer.invoke('get-state'),
-  updateSettings: (patch) => ipcRenderer.invoke('update-settings', patch),
+  // `valid` is false while the form shows an error; the shortcut won't start then.
+  updateSettings: (patch, valid) => ipcRenderer.invoke('update-settings', patch, valid),
   toggle: () => ipcRenderer.invoke('toggle'),
   pick: () => ipcRenderer.invoke('pick'),
   cancelPick: () => ipcRenderer.invoke('cancel-pick'),

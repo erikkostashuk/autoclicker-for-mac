@@ -13,6 +13,7 @@
   --danger: #ff3b30;
   --success: #34c759;
   --warning: #ff9500;
+  --warning-text: #b25000;
   --banner: #fff6e8;
   --banner-border: rgba(255, 149, 0, 0.35);
   --shadow: 0 0.5px 1.5px rgba(0, 0, 0, 0.12);
@@ -33,6 +34,7 @@
     --danger: #ff453a;
     --success: #30d158;
     --warning: #ff9f0a;
+    --warning-text: #ffb340;
     --banner: rgba(255, 159, 10, 0.12);
     --banner-border: rgba(255, 159, 10, 0.35);
     --shadow: none;
@@ -123,6 +125,10 @@ select:focus-visible {
 
 .note.error {
   color: var(--danger);
+}
+
+.note.warning {
+  color: var(--warning-text);
 }
 
 .unit,

@@ -9,9 +9,11 @@ const DEFAULTS = Object.freeze({
   repeatMode: 'forever',
   repeatCount: 100,
   positionMode: 'cursor',
-  x: 0,
-  y: 0,
+  x: null, // the fixed spot; unset until picked or typed in
+  y: null,
   hotkey: 'Alt+Command+K',
+  windowX: null, // where the window was last moved to
+  windowY: null,
 });
 
 const UNIT_MS = Object.freeze({ ms: 1, s: 1000, min: 60_000 });
@@ -49,12 +51,14 @@ function sanitize(patch, base = DEFAULTS) {
   if (Number.isInteger(patch.repeatCount) && patch.repeatCount >= 1 && patch.repeatCount <= MAX_REPEAT_COUNT) {
     result.repeatCount = patch.repeatCount;
   }
-  for (const axis of ['x', 'y']) {
+  for (const axis of ['x', 'y', 'windowX', 'windowY']) {
     if (isNumber(patch[axis]) && Math.abs(patch[axis]) <= MAX_COORDINATE) result[axis] = Math.round(patch[axis]);
   }
   if (typeof patch.hotkey === 'string' && patch.hotkey.length <= 64) result.hotkey = patch.hotkey;
   return result;
 }
+
+const hasFixedPoint = (settings) => settings.x !== null && settings.y !== null;
 
 // The interval in milliseconds, clamped to what the click engine supports.
 function intervalMs(settings) {
@@ -100,4 +104,4 @@ class SettingsStore {
   }
 }
 
-module.exports = { DEFAULTS, MIN_INTERVAL_MS, MAX_INTERVAL_MS, SettingsStore, intervalMs, sanitize };
+module.exports = { DEFAULTS, MIN_INTERVAL_MS, MAX_INTERVAL_MS, SettingsStore, hasFixedPoint, intervalMs, sanitize };

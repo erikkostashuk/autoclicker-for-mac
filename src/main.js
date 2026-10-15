@@ -1,8 +1,8 @@
 const path = require('node:path');
-const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme, shell, systemPreferences } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, nativeTheme, screen, shell, systemPreferences } = require('electron');
 const { ClickEngine } = require('./engine');
 const { REPO_URL, setUpMenu } = require('./menu');
-const { SettingsStore, intervalMs } = require('./settings');
+const { SettingsStore, hasFixedPoint, intervalMs } = require('./settings');
 
 const ACCESSIBILITY_SETTINGS_URL = 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility';
 const WINDOW_WIDTH = 380;
@@ -14,11 +14,13 @@ let engine;
 let store;
 let registeredHotkey = null;
 let hotkeyPaused = false; // while the user records a new shortcut
+let formValid = true; // false while the window shows a setting that needs fixing
 
 const state = {
   running: false,
   picking: false,
   clicks: 0,
+  limit: 0, // clicks the current run stops after; 0 = until stopped
   lastRun: null, // { reason } of the most recent run, for the status line
   trusted: false,
   hotkeyAvailable: true,
@@ -104,21 +106,34 @@ function onEscape() {
 
 // --- Clicking --------------------------------------------------------------
 
+// Explains in the window why a start (e.g. from the shortcut) didn't happen.
+function refuseStart(reason) {
+  state.lastRun = { reason };
+  showWindow();
+  pushState();
+}
+
 function startClicking() {
   if (state.running || state.picking) return;
+  const settings = store.values;
+  const fixed = settings.positionMode === 'fixed';
+  // The shortcut works from anywhere, so don't quietly run with the last
+  // valid settings while the window shows an error.
+  if (!formValid) return refuseStart('invalid');
+  if (fixed && !hasFixedPoint(settings)) return refuseStart('no-position');
   if (!checkPermission()) {
     blockedByPermission();
     return;
   }
-  const settings = store.values;
+  const limit = settings.repeatMode === 'count' ? settings.repeatCount : 0;
   engine.start({
     intervalMs: intervalMs(settings),
     button: settings.button,
     double: settings.clickType === 'double',
-    limit: settings.repeatMode === 'count' ? settings.repeatCount : 0,
-    point: settings.positionMode === 'fixed' ? { x: settings.x, y: settings.y } : null,
+    limit,
+    point: fixed ? { x: settings.x, y: settings.y } : null,
   });
-  Object.assign(state, { running: true, clicks: 0, lastRun: null });
+  Object.assign(state, { running: true, clicks: 0, limit, lastRun: null });
   updateEscapeShortcut();
   pushState();
 }
@@ -200,6 +215,19 @@ function revealWindow() {
   if (windowShown || !mainWindow) return;
   windowShown = true;
   mainWindow.show();
+  // Asking once lists the app under Privacy & Security → Accessibility and
+  // shows the macOS prompt, on top of the window that explains it.
+  if (!checkPermission()) systemPreferences.isTrustedAccessibilityClient(true);
+}
+
+// Where the window was last left, if that's still on a connected display.
+function savedPosition() {
+  const { windowX: x, windowY: y } = store.values;
+  if (x === null || y === null) return {};
+  const onScreen = screen
+    .getAllDisplays()
+    .some(({ workArea: area }) => x >= area.x && y >= area.y && x < area.x + area.width - 100 && y < area.y + area.height - 100);
+  return onScreen ? { x, y } : {};
 }
 
 function showWindow() {
@@ -211,6 +239,7 @@ function showWindow() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+    ...savedPosition(),
     width: WINDOW_WIDTH,
     height: 560,
     useContentSize: true,
@@ -235,6 +264,10 @@ function createWindow() {
     mainWindow.on(event, updateExcludeRect);
   }
   mainWindow.on('focus', checkPermission);
+  mainWindow.on('moved', () => {
+    const [windowX, windowY] = mainWindow.getPosition();
+    store.update({ windowX, windowY });
+  });
   // The renderer sizes the window to its content, then it's shown; this is
   // only a fallback.
   mainWindow.once('ready-to-show', () => setTimeout(revealWindow, 500));
@@ -256,8 +289,10 @@ function handle(channel, listener) {
 
 function setUpIpc() {
   handle('get-state', snapshot);
-  handle('update-settings', (patch) => {
+  handle('update-settings', (patch, valid) => {
     store.update(patch);
+    formValid = valid !== false;
+    if (['invalid', 'no-position'].includes(state.lastRun?.reason)) state.lastRun = null;
     pushState();
   });
   handle('toggle', toggleClicking);
@@ -311,11 +346,8 @@ if (!app.requestSingleInstanceLock()) {
     setUpMenu();
     app.setAboutPanelOptions({ credits: `Free and open source under the MIT License.\n${REPO_URL}` });
     registerHotkey();
+    checkPermission();
     createWindow();
-
-    // Asking once lists the app under Privacy & Security → Accessibility and
-    // shows the macOS prompt; the window explains the rest.
-    if (!checkPermission()) systemPreferences.isTrustedAccessibilityClient(true);
     setInterval(checkPermission, PERMISSION_POLL_MS);
   });
 
