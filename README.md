@@ -23,17 +23,19 @@ Requires macOS 13 Ventura or later.
 
 ## Features
 
-- **Precise timing** from 1 ms to 24 hours, in milliseconds, seconds or minutes.
+- **Precise timing** from 1 ms to 24 hours, in milliseconds, seconds or minutes. Clicks are scheduled on a real-time thread, so they are sent within microseconds of their target time even when your Mac is busy.
 - **Left, right or middle button**, single or double clicks.
-- **Repeat until stopped** or stop after a set number of clicks.
+- **Repeat until stopped** or stop after a set number of clicks, with live progress.
 - **Click at the cursor** or at a **fixed spot** — type coordinates or click **Pick…** and then click anywhere on screen.
 - **Global start/stop shortcut** (⌥⌘K by default, click it in the app to change it) and **Esc** to stop at any time.
 - **Doesn't click its own buttons:** while the AutoClicker window is active, clicks pause whenever the cursor is over it, so pressing Start never hits Stop.
-- Remembers your settings, and follows light and dark mode.
+- Remembers your settings and where you left the window, and follows light and dark mode.
 
 ## Troubleshooting
 
 **Clicking doesn't work after updating.** macOS can keep the approval for the old version. In **System Settings → Privacy & Security → Accessibility**, select AutoClicker for Mac, remove it with the **–** button, then click **Open System Settings** in the app and switch it on again.
+
+**Clicks lag or keep going briefly after stopping.** macOS delivers up to about 200 clicks per second. Faster than that, clicks queue up inside macOS, and the app warns you when you choose such a rate. Use a longer interval.
 
 **The shortcut doesn't work.** Another app may already use it — the app says so under the shortcut. Click the shortcut in the app and press a different one.
 
