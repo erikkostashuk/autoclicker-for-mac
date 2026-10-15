@@ -10,7 +10,8 @@
     "pretest": "npm run build:native",
     "test": "node --test \"test/*.test.js\"",
     "predist": "npm run build:native",
-    "dist": "electron-builder --mac"
+    "dist": "electron-builder --mac",
+    "postdist": "sh scripts/compress-dmgs.sh"
   },
   "keywords": [
     "autoclicker",
@@ -35,6 +36,9 @@
         "from": "native/build/clicker",
         "to": "clicker"
       }
+    ],
+    "electronLanguages": [
+      "en"
     ],
     "mac": {
       "category": "public.app-category.utilities",
