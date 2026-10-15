@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '**.md'
       - LICENSE
+      - 'docs/**'
       - .github/workflows/ci.yml
   workflow_dispatch:
 
@@ -76,14 +77,20 @@ jobs:
             echo
             echo "**Updating?** macOS may keep the old Accessibility approval. If clicking doesn't work, remove AutoClicker for Mac from **System Settings → Privacy & Security → Accessibility** with the – button, then open the app and switch it on again."
             echo
-            echo "## Changes"
+            echo "## What's new"
             echo
+            # List commits users would notice; leave out ones that only touch
+            # docs, tests or CI.
+            if [ -n "$PREVIOUS" ]; then range="$PREVIOUS..HEAD"; else range="-20"; fi
+            changes=$(git log --no-merges --format=%H $range | while read -r sha; do
+              if git diff-tree --no-commit-id --name-only -r "$sha" | grep -vE '\.md$|^LICENSE$|^docs/|^test/|^\.github/' >/dev/null; then
+                git log -1 --format='- %s' "$sha"
+              fi
+            done)
+            echo "${changes:-- Maintenance and build updates}"
             if [ -n "$PREVIOUS" ]; then
-              git log --no-merges --pretty='- %s' "$PREVIOUS..HEAD"
               echo
               echo "**Full changelog:** https://github.com/$GITHUB_REPOSITORY/compare/$PREVIOUS...v$VERSION"
-            else
-              git log --no-merges --pretty='- %s' -20
             fi
           } > release-notes.md
           gh release create "v$VERSION" dist/*.dmg \
