@@ -6,6 +6,13 @@
 
 A fast, free and open-source autoclicker for macOS. Set how often to click, press a shortcut, and AutoClicker clicks for you — from one click an hour up to 1,000 clicks per second.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png"/>
+    <img src="docs/screenshot-light.png" alt="The AutoClicker window: click interval, mouse button, click type, repeat and position settings, a Start button and the start/stop shortcut" width="440"/>
+  </picture>
+</p>
+
 ## Download
 
 Get the latest version from the [Releases page](https://github.com/erikkostashuk/autoclicker-for-mac/releases/latest):
